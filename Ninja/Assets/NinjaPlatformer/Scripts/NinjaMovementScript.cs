@@ -142,7 +142,6 @@ public class NinjaMovementScript : MonoBehaviour {
 		if (walljump_count >= 0) {
 			walljump_count -= Time.deltaTime;		
 		}
-
 	}
 
 
@@ -153,22 +152,25 @@ public class NinjaMovementScript : MonoBehaviour {
 		//The actual Left/Right movement happens here.
 
 		//This checks is the player pressing left or right button.
-		if(Btn_Left_bool == true && Btn_Right_bool == false){
-			if(PlayerLooksRight == true && WallTouch == false){
-				PlayerLooksRight = false;
-				MySpriteOBJ.transform.localScale = new Vector3(-MySpriteOriginalScale.x,MySpriteOriginalScale.y,MySpriteOriginalScale.z);
-			}
+		//if(Btn_Left_bool == true && Btn_Right_bool == false){
+		//	if(PlayerLooksRight == true && WallTouch == false)
+  //          {
+		//		PlayerLooksRight = false;
+		//		MySpriteOBJ.transform.localScale = new Vector3(-MySpriteOriginalScale.x,MySpriteOriginalScale.y,MySpriteOriginalScale.z);
+		//	}
 
-			this.GetComponent<Rigidbody2D>().AddForce(new Vector2(NinjaVisualRoot.transform.right.x,NinjaVisualRoot.transform.right.y)*-PlayerSpeed*Time.deltaTime);
+		//	this.GetComponent<Rigidbody2D>().AddForce(new Vector2(NinjaVisualRoot.transform.right.x,NinjaVisualRoot.transform.right.y)*-PlayerSpeed*Time.deltaTime);
 
-		}else if(Btn_Left_bool == false && Btn_Right_bool == true){
+		//}else if(Btn_Left_bool == false && Btn_Right_bool == true)
+        {
 			if(PlayerLooksRight == false && WallTouch == false){
 				PlayerLooksRight = true;
 				MySpriteOBJ.transform.localScale = MySpriteOriginalScale;
 			}
-
-			this.GetComponent<Rigidbody2D>().AddForce(new Vector2(NinjaVisualRoot.transform.right.x,NinjaVisualRoot.transform.right.y)*PlayerSpeed*Time.deltaTime);
-
+			this.GetComponent<Rigidbody2D>()
+                .AddForce(
+                new Vector2(NinjaVisualRoot.transform.right.x,
+                NinjaVisualRoot.transform.right.y) * PlayerSpeed * Time.deltaTime);
 		}
 
 		//this makes sure player is not sliding on slobes
