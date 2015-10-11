@@ -10,7 +10,7 @@ public class NinjaMovementScript : MonoBehaviour {
 	public float JumpForce;
 
 	//Do you want player to have double jump? Then make this DoubleJump boolean true :)
-	private bool DoubleJump = true;
+	public bool DoubleJump;
 	
 
 	//These variables are for the code. They track the current events of the player character.
@@ -250,8 +250,14 @@ public class NinjaMovementScript : MonoBehaviour {
 		AnimatorController.SetFloat ("VerticalSpeed", AnimVelY);
 		AnimatorController.SetBool ("Grounded", IsGrounded);
 		AnimatorController.SetBool ("Walled", WallTouch);
+
 	}
-    
+
+
+
+
+
+
 	void OnCollisionEnter2D(Collision2D coll) {
 
 		if(coll.gameObject.CompareTag("Enemy")){

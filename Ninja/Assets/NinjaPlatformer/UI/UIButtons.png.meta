@@ -1,11 +1,7 @@
 fileFormatVersion: 2
 guid: 082576a06a6ef49c5b05315af3b37ced
 TextureImporter:
-  fileIDToRecycleName:
-    21300000: UIButtons_0
-    21300002: UIButtons_1
-    21300004: UIButtons_2
-    21300006: UIButtons_3
+  fileIDToRecycleName: {}
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
