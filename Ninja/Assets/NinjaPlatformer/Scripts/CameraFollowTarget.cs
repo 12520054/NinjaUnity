@@ -18,10 +18,10 @@ public class CameraFollowTarget : MonoBehaviour {
 		if (PlayerJustDied == false) {
 						//Smoothly Follow Target
 						Vector3 PositionBefore = this.transform.position;
-						Vector3 NewPosition = Vector3.Lerp (this.transform.position, FollowTargetOBJ.transform.position, FollowSpeed * Time.deltaTime);
-						this.transform.position = new Vector3 (NewPosition.x, this.transform.position.y, this.transform.position.z);
+            //Vector3 NewPosition = Vector3.Lerp (this.transform.position, FollowTargetOBJ.transform.position, FollowSpeed * Time.deltaTime);
+            Vector3 NewPosition = FollowTargetOBJ.transform.position;
+            this.transform.position = new Vector3 (NewPosition.x + 0.7f, this.transform.position.y, this.transform.position.z);
 		}
-		
 	}
 
 	//Here you can set camera delay for the Ninja death.

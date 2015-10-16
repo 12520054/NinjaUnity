@@ -10,7 +10,7 @@ public class NinjaMovementScript : MonoBehaviour {
 	public float JumpForce;
 
 	//Do you want player to have double jump? Then make this DoubleJump boolean true :)
-	public bool DoubleJump;
+	private static bool DoubleJump = true;
 	
 
 	//These variables are for the code. They track the current events of the player character.
