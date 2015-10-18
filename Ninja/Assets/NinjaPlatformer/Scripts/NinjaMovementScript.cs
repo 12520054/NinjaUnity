@@ -4,13 +4,14 @@ using System.Collections.Generic;
 
 
 public class NinjaMovementScript : MonoBehaviour {
-	
+
+    public GameObject dieParticle;
 	//Player speed and JumpForce. You can tweak these to change the game dynamics. 
 	public float PlayerSpeed;
 	public float JumpForce;
 
 	//Do you want player to have double jump? Then make this DoubleJump boolean true :)
-	private static bool DoubleJump = true;
+	public bool DoubleJump = true;
 	
 
 	//These variables are for the code. They track the current events of the player character.
@@ -106,72 +107,32 @@ public class NinjaMovementScript : MonoBehaviour {
 
 
 
-	// Update is called once per frame
-	void Update () {
+    // Update is called once per frame
+    void Update() {
 
-		//Button commands from the keyboard
-		if (Input.GetKeyDown (KeyCode.LeftArrow)) {
-			Button_Left_press();		
-		}
-		if(Input.GetKeyUp (KeyCode.LeftArrow)) {
-			Button_Left_release();		
-		}
-
-		if (Input.GetKeyDown (KeyCode.RightArrow)) {
-			Button_Right_press();		
-		}
-		if(Input.GetKeyUp (KeyCode.RightArrow)) {
-			Button_Right_release();		
-		}
-
-		if (Input.GetKeyDown (KeyCode.Space)) {
+        if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0)) {
 			JustPressedSpace = 2;
 			Button_Jump_press();		
 		}
-		if (Input.GetKeyUp (KeyCode.Space)) {
+		if (Input.GetKeyUp (KeyCode.Space) || Input.GetMouseButtonUp(0)) {
 			Button_Jump_release();		
 		}
-
-		if (Input.GetKeyDown (KeyCode.A)) {
-			Button_Jump_press();		
-		}
-		if (Input.GetKeyUp (KeyCode.A)) {
-			Button_Jump_release();		
-		}
-
 		if (walljump_count >= 0) {
 			walljump_count -= Time.deltaTime;		
 		}
 	}
 
-
-
-
 	void FixedUpdate(){
-
-		//The actual Left/Right movement happens here.
-
-		//This checks is the player pressing left or right button.
-		//if(Btn_Left_bool == true && Btn_Right_bool == false){
-		//	if(PlayerLooksRight == true && WallTouch == false)
-  //          {
-		//		PlayerLooksRight = false;
-		//		MySpriteOBJ.transform.localScale = new Vector3(-MySpriteOriginalScale.x,MySpriteOriginalScale.y,MySpriteOriginalScale.z);
-		//	}
-
-		//	this.GetComponent<Rigidbody2D>().AddForce(new Vector2(NinjaVisualRoot.transform.right.x,NinjaVisualRoot.transform.right.y)*-PlayerSpeed*Time.deltaTime);
-
-		//}else if(Btn_Left_bool == false && Btn_Right_bool == true)
-        {
-			if(PlayerLooksRight == false && WallTouch == false){
-				PlayerLooksRight = true;
-				MySpriteOBJ.transform.localScale = MySpriteOriginalScale;
-			}
-			this.GetComponent<Rigidbody2D>()
-                .AddForce(
-                new Vector2(NinjaVisualRoot.transform.right.x,
-                NinjaVisualRoot.transform.right.y) * PlayerSpeed * Time.deltaTime);
+        
+        
+		if(PlayerLooksRight == false && WallTouch == false){
+			PlayerLooksRight = true;
+			MySpriteOBJ.transform.localScale = MySpriteOriginalScale;
 		}
+		this.GetComponent<Rigidbody2D>()
+            .AddForce(
+            new Vector2(NinjaVisualRoot.transform.right.x,
+            NinjaVisualRoot.transform.right.y) * PlayerSpeed * Time.deltaTime);
 
 		//this makes sure player is not sliding on slobes
 		if (IsGrounded == true && WallTouch == false) {
@@ -254,109 +215,126 @@ public class NinjaMovementScript : MonoBehaviour {
 		AnimatorController.SetBool ("Walled", WallTouch);
 
 	}
+    void OnCollisionEnter2D(Collision2D coll)
+    {
 
+        if (coll.gameObject.tag == "Enemy")
+        {
+            GameObject go = Instantiate(dieParticle, transform.position, new Quaternion(0, 0, 0, 0)) as GameObject;
+            go.transform.Rotate(new Vector3(270, 0, 0));
+            Destroy(gameObject);
+            GlobalValues.isPlayerRunning = false;
+        }
+        else
+        {
+            //This makes sure Ninja doesn't slide from previous force when hitting platform. Unless player is holding Left or Right button.
+            if (IsGrounded == false && Btn_Left_bool == false && Btn_Right_bool == false)
+            {
+                this.GetComponent<Rigidbody2D>().velocity = new Vector2(this.GetComponent<Rigidbody2D>().velocity.x * 0.25f, -0.01f);
+            }
+            else if (IsGrounded == false)
+            {
+                this.GetComponent<Rigidbody2D>().velocity = new Vector2(this.GetComponent<Rigidbody2D>().velocity.x, -0.01f);
+            }
 
+            OnCollisionStayCounter += 1;
+            OnCollisionBugThreshold = 0;
+            UpInTheAir_Counter = 0;
 
+            foreach (ContactPoint2D contact in coll.contacts)
+            {
 
+                //If Ninja hits his head to the roof. Stop Jump Force.
+                if (0.1f > contact.normal.y && ((contact.normal.x * contact.normal.x) < (0.85f * 0.85f)))
+                {
+                    JumpForceCount = 0f;
+                }
 
+                //If it wasn't the roof. Was it a ground perhaps?
+                else if (contact.normal.x >= Ground_X_MIN && contact.normal.x <= Ground_X_MAX && contact.normal.y >= Ground_Y_MIN && contact.normal.y <= Ground_Y_MAX)
+                {
 
-	void OnCollisionEnter2D(Collision2D coll) {
+                    int CountHappenings = 0;
+                    foreach (GameObject GroundedObject in GroundedToObjectsList)
+                    {
+                        if (contact.collider.gameObject.GetInstanceID() == GroundedObject.GetInstanceID())
+                        {
+                            CountHappenings += 1;
+                        }
+                    }
 
-		if(coll.gameObject.CompareTag("Enemy")){
-			return;
-		}
+                    //Is the platform already listed in GroundedObjects? If not Add it to the list.
+                    if (CountHappenings == 0)
+                    {
+                        DJ_available = false;
+                        GroundedToObjectsList.Add(contact.collider.gameObject);
+                        //Move NinjaPlatformRoot to the new platform.
+                        this.transform.parent = null;
+                        NinjaPlatformRoot.transform.position = contact.collider.gameObject.transform.position;
+                        NinjaPlatformRoot.RootedTo = contact.collider.gameObject;
+                        this.transform.parent = NinjaPlatformRoot.transform;
 
-		//This makes sure Ninja doesn't slide from previous force when hitting platform. Unless player is holding Left or Right button.
-		if (IsGrounded == false && Btn_Left_bool == false && Btn_Right_bool == false) {
-			this.GetComponent<Rigidbody2D>().velocity = new Vector2 (this.GetComponent<Rigidbody2D>().velocity.x * 0.25f, -0.01f);
-		} else if (IsGrounded == false) {
-			this.GetComponent<Rigidbody2D>().velocity = new Vector2 (this.GetComponent<Rigidbody2D>().velocity.x, -0.01f);	
-		}
+                        IsGrounded = true;
 
-		OnCollisionStayCounter += 1;
-		OnCollisionBugThreshold = 0;
-		UpInTheAir_Counter = 0;
+                        this.GetComponent<Rigidbody2D>().AddForce(contact.normal * (-300f));
 
-		foreach (ContactPoint2D contact in coll.contacts) {
+                        if (WallTouch == true)
+                        {
+                            WallGripParticles.emissionRate = 0;
+                            FixStateTimer = 0;
+                        }
+                    }
 
-			//If Ninja hits his head to the roof. Stop Jump Force.
-			if (0.1f > contact.normal.y && ((contact.normal.x*contact.normal.x) < (0.85f*0.85f))) {
-				JumpForceCount = 0f;
-			}
+                    //If it wasnt a roof or a ground it must have been wall. No need for Normal check anymore.
+                }
+                else
+                {
+                    //Ninja must be faling downwards to grab the wall.
+                    if (this.GetComponent<Rigidbody2D>().velocity.y < 0f && IsGrounded == false)
+                    {
+                        this.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
+                        //is the Object already listed in WalledObjects?
+                        int CountHappenings = 0;
+                        foreach (GameObject WalledObject in WalledToObjectsList)
+                        {
+                            if (contact.collider.gameObject.GetInstanceID() == WalledObject.GetInstanceID())
+                            {
+                                CountHappenings += 1;
+                            }
+                        }
+                        //if not. Lets list it.
+                        if (CountHappenings == 0)
+                        {
+                            DJ_available = false;
+                            WalledToObjectsList.Add(contact.collider.gameObject);
+                            this.transform.parent = null;
+                            NinjaPlatformRoot.transform.position = contact.collider.gameObject.transform.position;
+                            NinjaPlatformRoot.RootedTo = contact.collider.gameObject;
+                            this.transform.parent = NinjaPlatformRoot.transform;
 
-			//If it wasn't the roof. Was it a ground perhaps?
-			else if (contact.normal.x >= Ground_X_MIN && contact.normal.x <= Ground_X_MAX && contact.normal.y >= Ground_Y_MIN && contact.normal.y <= Ground_Y_MAX) {
+                            WallTouch = true;
 
-				int CountHappenings = 0;
-				foreach(GameObject GroundedObject in GroundedToObjectsList){
-					if(contact.collider.gameObject.GetInstanceID() == GroundedObject.GetInstanceID()){
-						CountHappenings += 1;
-					}
-				}
+                            //Check that the player is facing to the right direction
+                            if (contact.normal.x > 0)
+                            {
+                                PlayerLooksRight = true;
+                                MySpriteOBJ.transform.localScale = MySpriteOriginalScale;
+                            }
+                            else
+                            {
+                                PlayerLooksRight = false;
+                                MySpriteOBJ.transform.localScale = new Vector3(-MySpriteOriginalScale.x, MySpriteOriginalScale.y, MySpriteOriginalScale.z);
+                            }
 
-				//Is the platform already listed in GroundedObjects? If not Add it to the list.
-				if(CountHappenings == 0){
-					DJ_available = false;
-					GroundedToObjectsList.Add(contact.collider.gameObject);
-					//Move NinjaPlatformRoot to the new platform.
-					this.transform.parent = null;
-					NinjaPlatformRoot.transform.position = contact.collider.gameObject.transform.position;
-					NinjaPlatformRoot.RootedTo = contact.collider.gameObject;
-					this.transform.parent = NinjaPlatformRoot.transform;
+                            //Start emiting smoke particles when touching the wall
+                            WallGripParticles.emissionRate = WallGripEmissionRate;
 
-					IsGrounded = true;
-
-					this.GetComponent<Rigidbody2D>().AddForce (contact.normal * (-300f));
-
-					if(WallTouch == true){
-						WallGripParticles.emissionRate = 0;
-						FixStateTimer = 0;
-					}
-				}
-
-			//If it wasnt a roof or a ground it must have been wall. No need for Normal check anymore.
-			}else{
-				//Ninja must be faling downwards to grab the wall.
-				if (this.GetComponent<Rigidbody2D>().velocity.y < 0f && IsGrounded == false) {
-					this.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
-					//is the Object already listed in WalledObjects?
-					int CountHappenings = 0;
-					foreach(GameObject WalledObject in WalledToObjectsList){
-						if(contact.collider.gameObject.GetInstanceID() == WalledObject.GetInstanceID()){
-							CountHappenings += 1;
-						}
-					}
-					//if not. Lets list it.
-					if(CountHappenings == 0){
-						DJ_available = false;
-						WalledToObjectsList.Add(contact.collider.gameObject);
-						this.transform.parent = null;
-						NinjaPlatformRoot.transform.position = contact.collider.gameObject.transform.position;
-						NinjaPlatformRoot.RootedTo = contact.collider.gameObject;
-						this.transform.parent = NinjaPlatformRoot.transform;
-					
-						WallTouch = true;
-					
-						//Check that the player is facing to the right direction
-						if (contact.normal.x > 0) {
-							PlayerLooksRight = true;
-							MySpriteOBJ.transform.localScale = MySpriteOriginalScale;
-						} else {
-							PlayerLooksRight = false;
-							MySpriteOBJ.transform.localScale = new Vector3 (-MySpriteOriginalScale.x, MySpriteOriginalScale.y, MySpriteOriginalScale.z);
-						}
-					
-						//Start emiting smoke particles when touching the wall
-						WallGripParticles.emissionRate = WallGripEmissionRate;
-
-					}
-				}
-			}
-		}
-	}
-
-
-
+                        }
+                    }
+                }
+            }
+        }
+    }
 	void OnCollisionStay2D(Collision2D coll) {
 
 		OnCollisionStayCounter += 1;
@@ -485,8 +463,6 @@ public class NinjaMovementScript : MonoBehaviour {
 			}
 		}
 	}
-		
-
 	//Here we check if the player is jumping or moving away from the wall or ground.
 	void OnCollisionExit2D(Collision2D coll) {
 		OnCollisionStayCounter = 0;
@@ -533,8 +509,6 @@ public class NinjaMovementScript : MonoBehaviour {
 			}
 		}
 	}
-
-
 	public void NinjaDies(){
 		Particles_DeathBoom.Emit (50);
 	
@@ -547,12 +521,10 @@ public class NinjaMovementScript : MonoBehaviour {
 		}
 		MainEventsLog_script.PlayerDied();
 	}
-
 	public void NinjaKilledEnemy(){
 		GroundedToObjectsList.Clear ();
 		WalledToObjectsList.Clear ();
 	}
-
 	//This region is for Button events. (These same events are called from Keyboard and Touch Buttons)
 	#region ButtonVoids
 
@@ -637,6 +609,4 @@ public class NinjaMovementScript : MonoBehaviour {
 	}
 	
 	#endregion
-
-
 }

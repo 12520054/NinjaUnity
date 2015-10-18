@@ -9,13 +9,9 @@ public class CameraFollowTarget : MonoBehaviour {
 	//Paralax layers
 
 	private bool PlayerJustDied;
-	
-	void Update () {
-	
-	}
 
-	void FixedUpdate(){
-		if (PlayerJustDied == false) {
+	void Update(){
+		if (PlayerJustDied == false && FollowTargetOBJ != null) {
 						//Smoothly Follow Target
 						Vector3 PositionBefore = this.transform.position;
             //Vector3 NewPosition = Vector3.Lerp (this.transform.position, FollowTargetOBJ.transform.position, FollowSpeed * Time.deltaTime);
