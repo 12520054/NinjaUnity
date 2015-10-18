@@ -111,48 +111,33 @@ public class NinjaMovementScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (GlobalValues.isPlayerRunning)
+        {
+            //Button commands from the keyboard
 
-        //Button commands from the keyboard
-        if (Input.GetKeyDown(KeyCode.LeftArrow))
-        {
-            Button_Left_press();
-        }
-        if (Input.GetKeyUp(KeyCode.LeftArrow))
-        {
-            Button_Left_release();
-        }
+            if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0))
+            {
+                JustPressedSpace = 2;
+                Button_Jump_press();
+            }
+            if (Input.GetKeyUp(KeyCode.Space) || Input.GetMouseButtonUp(0))
+            {
+                Button_Jump_release();
+            }
 
-        if (Input.GetKeyDown(KeyCode.RightArrow))
-        {
-            Button_Right_press();
-        }
-        if (Input.GetKeyUp(KeyCode.RightArrow))
-        {
-            Button_Right_release();
-        }
+            if (Input.GetKeyDown(KeyCode.A))
+            {
+                Button_Jump_press();
+            }
+            if (Input.GetKeyUp(KeyCode.A))
+            {
+                Button_Jump_release();
+            }
 
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            JustPressedSpace = 2;
-            Button_Jump_press();
-        }
-        if (Input.GetKeyUp(KeyCode.Space))
-        {
-            Button_Jump_release();
-        }
-
-        if (Input.GetKeyDown(KeyCode.A))
-        {
-            Button_Jump_press();
-        }
-        if (Input.GetKeyUp(KeyCode.A))
-        {
-            Button_Jump_release();
-        }
-
-        if (walljump_count >= 0)
-        {
-            walljump_count -= Time.deltaTime;
+            if (walljump_count >= 0)
+            {
+                walljump_count -= Time.deltaTime;
+            }
         }
     }
 
@@ -162,19 +147,7 @@ public class NinjaMovementScript : MonoBehaviour
     void FixedUpdate()
     {
 
-        //The actual Left/Right movement happens here.
-
-        //This checks is the player pressing left or right button.
-        //if(Btn_Left_bool == true && Btn_Right_bool == false){
-        //	if(PlayerLooksRight == true && WallTouch == false)
-        //          {
-        //		PlayerLooksRight = false;
-        //		MySpriteOBJ.transform.localScale = new Vector3(-MySpriteOriginalScale.x,MySpriteOriginalScale.y,MySpriteOriginalScale.z);
-        //	}
-
-        //	this.GetComponent<Rigidbody2D>().AddForce(new Vector2(NinjaVisualRoot.transform.right.x,NinjaVisualRoot.transform.right.y)*-PlayerSpeed*Time.deltaTime);
-
-        //}else if(Btn_Left_bool == false && Btn_Right_bool == true)
+        if (GlobalValues.isPlayerRunning)
         {
             if (PlayerLooksRight == false && WallTouch == false)
             {
@@ -185,104 +158,105 @@ public class NinjaMovementScript : MonoBehaviour
                 .AddForce(
                 new Vector2(NinjaVisualRoot.transform.right.x,
                 NinjaVisualRoot.transform.right.y) * PlayerSpeed * Time.deltaTime);
-        }
 
-        //this makes sure player is not sliding on slobes
-        if (IsGrounded == true && WallTouch == false)
-        {
-            this.GetComponent<Rigidbody2D>().gravityScale = 0f;
-        }
-        else
-        {
-            if (this.GetComponent<Rigidbody2D>().gravityScale != 1f)
+
+            //this makes sure player is not sliding on slobes
+            if (IsGrounded == true && WallTouch == false)
             {
-                this.GetComponent<Rigidbody2D>().gravityScale = 1f;
+                this.GetComponent<Rigidbody2D>().gravityScale = 0f;
             }
-        }
-
-        //Slowdown the player fall if touching a wall.
-        if (IsGrounded == false && WallTouch == true)
-        {
-            this.GetComponent<Rigidbody2D>().velocity = new Vector2(this.GetComponent<Rigidbody2D>().velocity.x, Physics2D.gravity.y * 0.01f);
-        }
-
-        //If Ninja is in the air. Start to totate him back upwards after few frames.
-        UpInTheAir_Counter += 1;
-        if (UpInTheAir_Counter > 5)
-        {
-            if (IsGrounded == false && WallTouch == false)
+            else
             {
-                Vector2 RealDirectionV2 = new Vector2(this.transform.up.x, this.transform.up.y);
-                Vector2 WorldUpVec = new Vector2(0f, 1f);
-                float TorqueTo = Vector2.Angle(WorldUpVec, RealDirectionV2);
-                if (WorldUpVec.normalized.x > RealDirectionV2.normalized.x)
+                if (this.GetComponent<Rigidbody2D>().gravityScale != 1f)
                 {
-                    TorqueTo = TorqueTo * (-1);
+                    this.GetComponent<Rigidbody2D>().gravityScale = 1f;
                 }
-                if (-WorldUpVec.normalized.y > RealDirectionV2.normalized.y)
-                {
-                    TorqueTo = TorqueTo * (-1);
-                }
-                this.GetComponent<Rigidbody2D>().AddTorque(TorqueTo * 400f * Time.deltaTime);
             }
+
+            //Slowdown the player fall if touching a wall.
+            if (IsGrounded == false && WallTouch == true)
+            {
+                this.GetComponent<Rigidbody2D>().velocity = new Vector2(this.GetComponent<Rigidbody2D>().velocity.x, Physics2D.gravity.y * 0.01f);
+            }
+
+            //If Ninja is in the air. Start to totate him back upwards after few frames.
+            UpInTheAir_Counter += 1;
+            if (UpInTheAir_Counter > 5)
+            {
+                if (IsGrounded == false && WallTouch == false)
+                {
+                    Vector2 RealDirectionV2 = new Vector2(this.transform.up.x, this.transform.up.y);
+                    Vector2 WorldUpVec = new Vector2(0f, 1f);
+                    float TorqueTo = Vector2.Angle(WorldUpVec, RealDirectionV2);
+                    if (WorldUpVec.normalized.x > RealDirectionV2.normalized.x)
+                    {
+                        TorqueTo = TorqueTo * (-1);
+                    }
+                    if (-WorldUpVec.normalized.y > RealDirectionV2.normalized.y)
+                    {
+                        TorqueTo = TorqueTo * (-1);
+                    }
+                    this.GetComponent<Rigidbody2D>().AddTorque(TorqueTo * 400f * Time.deltaTime);
+                }
+            }
+
+            //Lift player up if jump is happening.
+            if (Btn_Jump_bool == true && JumpForceCount > 0)
+            {
+                this.GetComponent<Rigidbody2D>().velocity = new Vector2(this.GetComponent<Rigidbody2D>().velocity.x, JumpForce);
+                JumpForceCount -= 0.1f * Time.deltaTime;
+            }
+
+
+            //This if-statement makes sure Ninja is not grounded to any platform when there is no collision detections. (In some cases OnCollisionExit messages might be lost. This makes sure that it will not cause a bug.)
+            //START-------
+            if (OnCollisionStayCounter == 0)
+            {
+                OnCollisionBugThreshold += 1;
+            }
+            else
+            {
+                OnCollisionStayCounter = 0;
+            }
+
+            if (OnCollisionBugThreshold > 4 && (IsGrounded == true || WallTouch == true))
+            {
+                DJ_available = true;
+                IsGrounded = false;
+                WallTouch = false;
+                this.transform.parent = null;
+                GroundedToObjectsList.Clear();
+                WalledToObjectsList.Clear();
+                WallGripParticles.emissionRate = 0;
+                FixStateTimer = 0;
+                OnCollisionBugThreshold = 0;
+                OnCollisionStayCounter = 1;
+            }
+            //--------END
+
+
+            float AnimVelY = this.GetComponent<Rigidbody2D>().velocity.y;
+            float AnimVelX = this.GetComponent<Rigidbody2D>().velocity.sqrMagnitude * 4f;
+
+            if (JustPressedSpace > 0)
+            {
+                AnimVelX = 0f;
+                JustPressedSpace -= 1;
+            }
+
+            if (Btn_Jump_bool == false && IsGrounded == true)
+            {
+                //-- Set to zero to get run animation instead of fall animation
+                AnimVelY = 0f;
+            }
+
+            //Send variables to Animation Controller
+            AnimatorController.SetFloat("HorizontalSpeed", AnimVelX);
+            AnimatorController.SetFloat("VerticalSpeed", AnimVelY);
+            AnimatorController.SetBool("Grounded", IsGrounded);
+            AnimatorController.SetBool("Walled", WallTouch);
+
         }
-
-        //Lift player up if jump is happening.
-        if (Btn_Jump_bool == true && JumpForceCount > 0)
-        {
-            this.GetComponent<Rigidbody2D>().velocity = new Vector2(this.GetComponent<Rigidbody2D>().velocity.x, JumpForce);
-            JumpForceCount -= 0.1f * Time.deltaTime;
-        }
-
-
-        //This if-statement makes sure Ninja is not grounded to any platform when there is no collision detections. (In some cases OnCollisionExit messages might be lost. This makes sure that it will not cause a bug.)
-        //START-------
-        if (OnCollisionStayCounter == 0)
-        {
-            OnCollisionBugThreshold += 1;
-        }
-        else
-        {
-            OnCollisionStayCounter = 0;
-        }
-
-        if (OnCollisionBugThreshold > 4 && (IsGrounded == true || WallTouch == true))
-        {
-            DJ_available = true;
-            IsGrounded = false;
-            WallTouch = false;
-            this.transform.parent = null;
-            GroundedToObjectsList.Clear();
-            WalledToObjectsList.Clear();
-            WallGripParticles.emissionRate = 0;
-            FixStateTimer = 0;
-            OnCollisionBugThreshold = 0;
-            OnCollisionStayCounter = 1;
-        }
-        //--------END
-
-
-        float AnimVelY = this.GetComponent<Rigidbody2D>().velocity.y;
-        float AnimVelX = this.GetComponent<Rigidbody2D>().velocity.sqrMagnitude * 4f;
-
-        if (JustPressedSpace > 0)
-        {
-            AnimVelX = 0f;
-            JustPressedSpace -= 1;
-        }
-
-        if (Btn_Jump_bool == false && IsGrounded == true)
-        {
-            //-- Set to zero to get run animation instead of fall animation
-            AnimVelY = 0f;
-        }
-
-        //Send variables to Animation Controller
-        AnimatorController.SetFloat("HorizontalSpeed", AnimVelX);
-        AnimatorController.SetFloat("VerticalSpeed", AnimVelY);
-        AnimatorController.SetBool("Grounded", IsGrounded);
-        AnimatorController.SetBool("Walled", WallTouch);
-
     }
 
 
