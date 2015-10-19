@@ -105,13 +105,25 @@ public class NinjaMovementScript : MonoBehaviour
         MySpriteOriginalScale = MySpriteOBJ.transform.localScale;
 
     }
-    
+
+    float timeLeap;
     // Update is called once per frame
     void Update()
     {
+        
         if (GlobalValues.isPlayerRunning)
         {
             //Button commands from the keyboard
+            timeLeap += Time.deltaTime;
+
+            if (timeLeap > 3.0f)
+            {
+                timeLeap = 0;
+                if (PlayerSpeed < 4500)
+                {
+                    PlayerSpeed += 150;
+                }
+            }
 
             if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0))
             {
@@ -261,9 +273,11 @@ public class NinjaMovementScript : MonoBehaviour
     {
         if (coll.gameObject.tag == "Enemy")
         {
+            GetComponent<AudioSource>().Play();
             GameObject go = Instantiate(dieParticle, transform.position, new Quaternion(0, 0, 0, 0)) as GameObject;
             go.transform.Rotate(new Vector3(270, 0, 0));
-            Destroy(gameObject);
+            Destroy(gameObject, 1f);
+            GameObject.Find("NinjaSprites").GetComponent<SpriteRenderer>().enabled = false;
             GlobalValues.isPlayerRunning = false;
             playerIsDie = true;
             loseGamePanel.SetActive(true);
@@ -272,11 +286,12 @@ public class NinjaMovementScript : MonoBehaviour
             {
                 PlayerPrefs.SetInt("HIGH_SCORE", jScore);
             }
-            highJ.GetComponent<Text>().text += "   " + PlayerPrefs.GetInt("HIGH_SCORE", 0).ToString();
-            currentJ.GetComponent<Text>().text += "   " + jScore.ToString();
+            highJ.GetComponent<Text>().text = "   " + PlayerPrefs.GetInt("HIGH_SCORE", 0).ToString();
+            currentJ.GetComponent<Text>().text = "   " + jScore.ToString();
         }
         else
         {
+
             //This makes sure Ninja doesn't slide from previous force when hitting platform. Unless player is holding Left or Right button.
             if (IsGrounded == false && Btn_Left_bool == false && Btn_Right_bool == false)
             {
