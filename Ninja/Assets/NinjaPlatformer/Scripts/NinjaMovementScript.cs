@@ -1,10 +1,16 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-
+using UnityEngine.UI;
 
 public class NinjaMovementScript : MonoBehaviour
 {
+    public GameObject loseGamePanel;
+    public Text currentJ;
+    public Text highJ;
+    public Text jText;
+    private int jScore = 0;
+
     public GameObject dieParticle;
     //Player speed and JumpForce. You can tweak these to change the game dynamics. 
     public float PlayerSpeed;
@@ -12,8 +18,8 @@ public class NinjaMovementScript : MonoBehaviour
 
     //Do you want player to have double jump? Then make this DoubleJump boolean true :)
     private bool DoubleJump = true;
-
-
+    [HideInInspector]
+    public bool playerIsDie = false;
     //These variables are for the code. They track the current events of the player character.
     //You don't need to change or worry about them :)
     private MainEventsLog MainEventsLog_script;
@@ -50,9 +56,7 @@ public class NinjaMovementScript : MonoBehaviour
 
     //Checkpoint related things:
     public GameObject ActiveCheckpoint;
-
-
-
+    
     //These booleans keep track which button is being pressed or not.
     private bool Btn_Left_bool;
     private bool Btn_Right_bool;
@@ -70,14 +74,10 @@ public class NinjaMovementScript : MonoBehaviour
     public ParticleSystem JumpParticles_wall;
     public ParticleSystem JumpParticles_doublejump;
     public ParticleSystem Particles_DeathBoom;
-
-
+    
     //AudioSources play the audios of the scene.
     public AudioSource AudioSource_Jump;
-
-
-
-
+    
     // Use this for initialization
     void Start()
     {
@@ -105,9 +105,7 @@ public class NinjaMovementScript : MonoBehaviour
         MySpriteOriginalScale = MySpriteOBJ.transform.localScale;
 
     }
-
-
-
+    
     // Update is called once per frame
     void Update()
     {
@@ -117,6 +115,9 @@ public class NinjaMovementScript : MonoBehaviour
 
             if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0))
             {
+                jScore += 1;
+                jText.GetComponent<Text>().text = jScore.ToString() + ".J";
+
                 JustPressedSpace = 2;
                 Button_Jump_press();
             }
@@ -140,10 +141,7 @@ public class NinjaMovementScript : MonoBehaviour
             }
         }
     }
-
-
-
-
+    
     void FixedUpdate()
     {
 
@@ -258,12 +256,7 @@ public class NinjaMovementScript : MonoBehaviour
 
         }
     }
-
-
-
-
-
-
+    
     void OnCollisionEnter2D(Collision2D coll)
     {
         if (coll.gameObject.tag == "Enemy")
@@ -272,6 +265,15 @@ public class NinjaMovementScript : MonoBehaviour
             go.transform.Rotate(new Vector3(270, 0, 0));
             Destroy(gameObject);
             GlobalValues.isPlayerRunning = false;
+            playerIsDie = true;
+            loseGamePanel.SetActive(true);
+            int high = PlayerPrefs.GetInt("HIGH_SCORE", 0);
+            if(jScore > high)
+            {
+                PlayerPrefs.SetInt("HIGH_SCORE", jScore);
+            }
+            highJ.GetComponent<Text>().text += "   " + PlayerPrefs.GetInt("HIGH_SCORE", 0).ToString();
+            currentJ.GetComponent<Text>().text += "   " + jScore.ToString();
         }
         else
         {
@@ -332,7 +334,6 @@ public class NinjaMovementScript : MonoBehaviour
                             FixStateTimer = 0;
                         }
                     }
-
                     //If it wasnt a roof or a ground it must have been wall. No need for Normal check anymore.
                 }
                 else
@@ -383,9 +384,7 @@ public class NinjaMovementScript : MonoBehaviour
             }
         }
     }
-
-
-
+    
     void OnCollisionStay2D(Collision2D coll)
     {
 
@@ -552,8 +551,7 @@ public class NinjaMovementScript : MonoBehaviour
             }
         }
     }
-
-
+    
     //Here we check if the player is jumping or moving away from the wall or ground.
     void OnCollisionExit2D(Collision2D coll)
     {
@@ -611,29 +609,7 @@ public class NinjaMovementScript : MonoBehaviour
             }
         }
     }
-
-
-    public void NinjaDies()
-    {
-        Particles_DeathBoom.Emit(50);
-
-        this.gameObject.transform.position = ActiveCheckpoint.transform.position;
-        this.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
-
-        //Send message to MainEventsLog. First checks if the reference path is set. If not, it will MainEventsLog from the scene.
-        if (MainEventsLog_script == null)
-        {
-            MainEventsLog_script = GameObject.FindGameObjectWithTag("MainEventLog").GetComponent<MainEventsLog>();
-        }
-        MainEventsLog_script.PlayerDied();
-    }
-
-    public void NinjaKilledEnemy()
-    {
-        GroundedToObjectsList.Clear();
-        WalledToObjectsList.Clear();
-    }
-
+    
     //This region is for Button events. (These same events are called from Keyboard and Touch Buttons)
     #region ButtonVoids
 
@@ -732,6 +708,5 @@ public class NinjaMovementScript : MonoBehaviour
     }
 
     #endregion
-
 
 }

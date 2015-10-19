@@ -20,14 +20,10 @@ public class NinjaCollectible : MonoBehaviour {
 			if(MainEventsLog_script == null){
 				MainEventsLog_script = GameObject.FindGameObjectWithTag("MainEventLog").GetComponent<MainEventsLog>();
 			}
-			MainEventsLog_script.PlayerCollectedSoul();
 		}
 	}
 
 	void DestroyObject(){
 		Destroy (this.gameObject);
 	}
-
-
-
 }
