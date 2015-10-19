@@ -19,6 +19,7 @@ public class GameController : MonoBehaviour {
 
     public void Replay()
     {
+        Time.timeScale = 1.0f;
         Application.LoadLevel(Application.loadedLevel);
     }
     public void ExitApp()
