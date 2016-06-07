@@ -1,7 +1,19 @@
 fileFormatVersion: 2
 guid: 3540ededbe4e64a9488b61b5fb92dcef
 TextureImporter:
-  fileIDToRecycleName: {}
+  fileIDToRecycleName:
+    21300000: ninja_spritesheet_0
+    21300002: ninja_spritesheet_1
+    21300004: ninja_spritesheet_2
+    21300006: ninja_spritesheet_3
+    21300008: ninja_spritesheet_4
+    21300010: ninja_spritesheet_5
+    21300012: ninja_spritesheet_6
+    21300014: ninja_spritesheet_7
+    21300016: ninja_spritesheet_8
+    21300018: ninja_spritesheet_9
+    21300020: ninja_spritesheet_11
+    21300022: ninja_spritesheet_12
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0

@@ -1,7 +1,10 @@
 fileFormatVersion: 2
 guid: 30eeb3575980645579a63e4f29f076e6
 TextureImporter:
-  fileIDToRecycleName: {}
+  fileIDToRecycleName:
+    21300000: collectible_spritesheet_0
+    21300002: collectible_spritesheet_1
+    21300004: collectible_spritesheet_2
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0

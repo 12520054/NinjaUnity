@@ -11,12 +11,9 @@ public class CameraFollowTarget : MonoBehaviour {
 	private bool PlayerJustDied;
 
 	void Update(){
-		if (PlayerJustDied == false && FollowTargetOBJ != null) {
-						//Smoothly Follow Target
-						Vector3 PositionBefore = this.transform.position;
-            //Vector3 NewPosition = Vector3.Lerp (this.transform.position, FollowTargetOBJ.transform.position, FollowSpeed * Time.deltaTime);
+		if (FollowTargetOBJ != null && GlobalValues.isPlayerRunning == true) {
             Vector3 NewPosition = FollowTargetOBJ.transform.position;
-            this.transform.position = new Vector3 (NewPosition.x + 0.7f, this.transform.position.y, this.transform.position.z);
+            this.transform.position = new Vector3 (NewPosition.x + 5, this.transform.position.y, this.transform.position.z);
 		}
 	}
 
@@ -30,5 +27,4 @@ public class CameraFollowTarget : MonoBehaviour {
 	void BackToBusiness(){
 		PlayerJustDied = false;
 	}
-
 }

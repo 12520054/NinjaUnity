@@ -128,7 +128,7 @@ public class NinjaMovementScript : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0))
             {
                 jScore += 1;
-                jText.GetComponent<Text>().text = jScore.ToString() + ".J";
+                jText.GetComponent<Text>().text = jScore.ToString() + " J";
 
                 JustPressedSpace = 2;
                 Button_Jump_press();

@@ -1,7 +1,12 @@
 fileFormatVersion: 2
 guid: 641712d8a7ba24d5eae6586c9e293c86
 TextureImporter:
-  fileIDToRecycleName: {}
+  fileIDToRecycleName:
+    21300000: BG_silhouettes_0
+    21300002: BG_silhouettes_1
+    21300004: BG_silhouettes_2
+    21300006: BG_silhouettes_3
+    21300008: BG_silhouettes_Square
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
